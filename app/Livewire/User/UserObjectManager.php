@@ -94,17 +94,35 @@ class UserObjectManager extends Component
             if ($this->selectedDate) {
                 $query->whereDate('data', $this->selectedDate);
             }
-            $this->allObjects = $query->get();
+            $objects = $query->get();
+
+            $this->allObjects = $objects->groupBy(function ($object) {
+                return $object->data . '|' . $object->id_institution;
+            })->map(function ($group) {
+                $first = $group->first();
+                $totalQuantity = $group->pluck('objectListItems')->flatten()->sum('pivot.quantity');
+                return [
+                    'data' => $first->data,
+                    'institution_name' => $first->institution ? $first->institution->name : 'N/A',
+                    'eveniment' => $group->pluck('eveniment')->unique()->filter()->implode(', ') ?: 'Depistare',
+                    'objects' => $group->pluck('objectListItems')->flatten()->groupBy('name')->map(function ($items, $name) {
+                        return [
+                            'name' => $name,
+                            'quantity' => $items->sum('pivot.quantity'),
+                        ];
+                    })->values(),
+                    'total_quantity' => $totalQuantity,
+                    'obj_text' => $group->pluck('obj_text')->filter()->implode(', '),
+                    'count' => $group->count(),
+                ];
+            })->values();
+
+            $this->dispatch('allObjectsUpdated', $this->allObjects->toArray());
         } catch (\Exception $e) {
             $this->allObjects = collect();
             Log::error('Eroare la încărcarea tuturor obiectelor: ' . $e->getMessage());
             $this->dispatch('showToast', ['type' => 'danger', 'message' => 'Eroare la încărcarea tuturor obiectelor: ' . $e->getMessage()]);
         }
-    }
-
-    public function openModal()
-    {
-        $this->showModal = true;
     }
 
     public function createObject()
@@ -162,6 +180,11 @@ class UserObjectManager extends Component
         $this->selectedObjects = [];
         $this->tempQuantities = [];
         $this->resetErrorBag();
+    }
+
+    public function openModal()
+    {
+        $this->showModal = true;
     }
 
     public function addAllSelectedObjects()

@@ -104,7 +104,60 @@
                     </div>
                 </div>
                 <div class="overflow-x-auto">
-                    <livewire:objects-table :selectedDate="$selectedDate" />
+                    <table id="all-objects-table" class="w-full bg-gray-100 dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm">
+                        <thead>
+                            <tr>
+                                <th class="py-2 px-4 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Data</th>
+                                <th class="py-2 px-4 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Instituția</th>
+                                <th class="py-2 px-4 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Eveniment</th>
+                                <th class="py-2 px-4 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Obiecte</th>
+                                <th class="py-2 px-4 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Total Obiecte</th>
+                                <th class="py-2 px-4 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Conținut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($allObjects as $group)
+                                <tr>
+                                    <td class="py-2 px-4 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center" rowspan="{{ $group['count'] }}">
+                                        {{ \Carbon\Carbon::parse($group['data'])->format('d.m.Y') }}
+                                    </td>
+                                    <td class="py-2 px-4 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center" rowspan="{{ $group['count'] }}">
+                                        {{ $group['institution_name'] }}
+                                    </td>
+                                    <td class="py-2 px-4 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">
+                                        {{ $group['eveniment'] }}
+                                    </td>
+                                    <td class="py-2 px-4 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center" rowspan="{{ $group['count'] }}">
+                                        @foreach ($group['objects'] as $object)
+                                            {{ $object['name'] }} ({{ $object['quantity'] }})<br>
+                                        @endforeach
+                                    </td>
+                                    <td class="py-2 px-4 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center" rowspan="{{ $group['count'] }}">
+                                        {{ $group['total_quantity'] }}
+                                    </td>
+                                    <td class="py-2 px-4 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-left">
+                                        {!! $group['obj_text'] ?: '-' !!}
+                                    </td>
+                                </tr>
+                                @if ($group['count'] > 1)
+                                    @for ($i = 1; $i < $group['count']; $i++)
+                                        <tr>
+                                            <td class="py-2 px-4 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">
+                                                {{ $group['eveniment'] }}
+                                            </td>
+                                            <td class="py-2 px-4 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-left">
+                                                {!! $group['obj_text'] ?: '-' !!}
+                                            </td>
+                                        </tr>
+                                    @endfor
+                                @endif
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="py-2 px-4 text-center text-gray-900 dark:text-white">Niciun obiect găsit.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         @endif
@@ -208,7 +261,7 @@
             window.printTable = function() {
                 const filterDate = document.getElementById('filterDate').value;
                 const title = `Obiecte Interzise - Toate Instituțiile - ${filterDate}`;
-                const table = document.querySelector('.laravel-livewire-tables');
+                const table = document.getElementById('all-objects-table');
 
                 if (!table) {
                     alert('Tabelul nu a fost găsit!');
@@ -263,15 +316,13 @@
                 doc.rect(50, y, 40, 8, 'F');
                 doc.rect(90, y, 40, 8, 'F');
                 doc.rect(130, y, 40, 8, 'F');
-                doc.rect(170, y, 40, 8, 'F');
-                doc.rect(210, y, 67, 8, 'F');
+                doc.rect(170, y, 107, 8, 'F');
                 doc.setTextColor(0, 0, 0);
                 doc.text('Data', 12, y + 6);
                 doc.text('Instituția', 52, y + 6);
                 doc.text('Eveniment', 92, y + 6);
                 doc.text('Obiecte', 132, y + 6);
-                doc.text('Total Obiecte', 172, y + 6);
-                doc.text('Conținut', 212, y + 6);
+                doc.text('Conținut', 172, y + 6);
                 doc.setLineWidth(0.2);
                 doc.rect(10, y, 267, 8);
                 y += 8;
@@ -280,28 +331,25 @@
                     const data = object.data ? new Date(object.data).toLocaleDateString('ro-RO') : 'N/A';
                     const institution = object.institution ? object.institution.name : 'N/A';
                     const eveniment = object.eveniment || 'Depistare';
-                    const totalObjects = object.objectListItems.reduce((sum, item) => sum + item.pivot.quantity, 0);
-                    const objectsList = object.objectListItems && object.objectListItems.length > 0 
-                        ? object.objectListItems.map(item => `${item.name} (${item.pivot.quantity})`).join(', ') 
-                        : '-';
                     const objText = object.obj_text || '-';
+                    const objectsList = object.objects && object.objects.length > 0 
+                        ? object.objects.map(item => `${item.name} (${item.quantity})`).join(', ') 
+                        : '-';
 
                     doc.setFillColor(249, 250, 251);
-                    const contentLines = doc.splitTextToSize(objText, 65);
+                    const contentLines = doc.splitTextToSize(objText, 105);
                     const objectsLines = doc.splitTextToSize(objectsList, 35);
                     const contentHeight = Math.max(8, Math.max(contentLines.length, objectsLines.length) * 5);
                     doc.rect(10, y, 40, contentHeight, 'F');
                     doc.rect(50, y, 40, contentHeight, 'F');
                     doc.rect(90, y, 40, contentHeight, 'F');
                     doc.rect(130, y, 40, contentHeight, 'F');
-                    doc.rect(170, y, 40, contentHeight, 'F');
-                    doc.rect(210, y, 67, contentHeight, 'F');
+                    doc.rect(170, y, 107, contentHeight, 'F');
                     doc.text(data, 12, y + 6);
                     doc.text(institution.substring(0, 20), 52, y + 6);
                     doc.text(eveniment, 92, y + 6);
                     doc.text(objectsLines, 132, y + 6);
-                    doc.text(totalObjects.toString(), 172, y + 6);
-                    doc.text(contentLines, 212, y + 6);
+                    doc.text(contentLines, 172, y + 6);
                     doc.rect(10, y, 267, contentHeight);
 
                     y += contentHeight;
