@@ -3,13 +3,13 @@
 
     <div class="mb-4 flex gap-4">
         <div>
-        @can('create detinuti')
-        <label class="block mb-1 text-gray-900 dark:text-white"></br></label>
-            <button wire:click="$set('showModal', true)" 
-                    class="bg-blue-500 hover:bg-zinc-600 text-white px-4 py-2 rounded">
-                Adaugă înregistrare
-            </button>
-        @endcan
+            @can('create detinuti')
+                <label class="block mb-1 text-gray-900 dark:text-white"></br></label>
+                <button wire:click="$set('showModal', true)" 
+                        class="bg-blue-500 hover:bg-zinc-600 text-white px-4 py-2 rounded">
+                    Adaugă înregistrare
+                </button>
+            @endcan
         </div>
         <div>
             <label class="block mb-1 text-gray-900 dark:text-white">Sortează după dată</label>
@@ -26,69 +26,77 @@
     @endif
 
     <div class="overflow-x-auto">
-        <table class="w-full bg-gray-100 dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm">
+        <table class="w-full bg-gray-100 dark:bg-zinc-900">
             <thead>
                 <tr>
-                    <!-- <th class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Data</th> -->
-                    <th class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Instituție</th>
-                    <th class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Total</th>
-                    <th class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Deținuți reali</th>
-                    <th class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">În căutare</th>
-                    <th class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Detenție preventivă</th>
-                    <th class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Condiții inițiale</th>
-                    <th class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Pe viață</th>
-                    <th class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Femei</th>
-                    <th class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Minori</th>
-                    <th class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Sector deschis</th>
-                    <th class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Fără escortă</th>
-                    <th class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Brățări</th>
-                    <th class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Grevă foame</th>
-                    <th class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Izolator</th>
-                    <th class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Spitale</th>
-                    <th class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">IP spitale</th>
-                    <th class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">DDS spitale</th>
-                    <th class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Muncă ext.</th>
-                    <th class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">IP ext.</th>
-                    <th class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Acțiuni</th>
+                    <th class="py-1 px-2 text-gray-900 dark:text-white text-center">Instituție</th>
+                    <th class="py-1 px-2 text-gray-900 dark:text-white text-center">Total</th>
+                    <th class="py-1 px-2 text-gray-900 dark:text-white text-center">Deținuți reali</th>
+                    <th class="py-1 px-2 text-gray-900 dark:text-white text-center">În căutare</th>
+                    <th class="py-1 px-2 text-gray-900 dark:text-white text-center">Detenție preventivă</th>
+                    <th class="py-1 px-2 text-gray-900 dark:text-white text-center">Condiții inițiale</th>
+                    <th class="py-1 px-2 text-gray-900 dark:text-white text-center">Pe viață</th>
+                    <th class="py-1 px-2 text-gray-900 dark:text-white text-center">Femei</th>
+                    <th class="py-1 px-2 text-gray-900 dark:text-white text-center">Minori</th>
+                    <th class="py-1 px-2 text-gray-900 dark:text-white text-center">Sector deschis</th>
+                    <th class="py-1 px-2 text-gray-900 dark:text-white text-center">Fără escortă</th>
+                    <th class="py-1 px-2 text-gray-900 dark:text-white text-center">Brățări</th>
+                    <th class="py-1 px-2 text-gray-900 dark:text-white text-center">Grevă foame</th>
+                    <th class="py-1 px-2 text-gray-900 dark:text-white text-center">Izolator</th>
+                    <th class="py-1 px-2 text-gray-900 dark:text-white text-center">Spitale</th>
+                    <th class="py-1 px-2 text-gray-900 dark:text-white text-center">IP spitale</th>
+                    <th class="py-1 px-2 text-gray-900 dark:text-white text-center">DDS spitale</th>
+                    <th class="py-1 px-2 text-gray-900 dark:text-white text-center">Muncă ext.</th>
+                    <th class="py-1 px-2 text-gray-900 dark:text-white text-center">IP ext.</th>
+                    <th class="w-[80px] py-1 px-2 text-gray-900 dark:text-white text-center">Acțiuni</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse ($detinuti as $detinut)
                     <tr>
-                        <!-- <td class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">{{ $detinut->data ? $detinut->data->format('d-m-Y') : '-' }}</td> -->
-                        <td class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">{{ $detinut->institution->name ?? '-' }}</td>
-                        <td class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">{{ $detinut->total ?? '-' }}</td>
-                        <td class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">{{ $detinut->real_inmates ?? '-' }}</td>
-                        <td class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">{{ $detinut->in_search ?? '-' }}</td>
-                        <td class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">{{ $detinut->pretrial_detention ?? '-' }}</td>
-                        <td class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">{{ $detinut->initial_conditions ?? '-' }}</td>
-                        <td class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">{{ $detinut->life ?? '-' }}</td>
-                        <td class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">{{ $detinut->female ?? '-' }}</td>
-                        <td class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">{{ $detinut->minors ?? '-' }}</td>
-                        <td class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">{{ $detinut->open_sector ?? '-' }}</td>
-                        <td class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">{{ $detinut->no_escort ?? '-' }}</td>
-                        <td class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">{{ $detinut->monitoring_bracelets ?? '-' }}</td>
-                        <td class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">{{ $detinut->hunger_strike ?? '-' }}</td>
-                        <td class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">{{ $detinut->disciplinary_insulator ?? '-' }}</td>
-                        <td class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">{{ $detinut->admitted_to_hospitals ?? '-' }}</td>
-                        <td class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">{{ $detinut->employed_ip_in_hospitals ?? '-' }}</td>
-                        <td class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">{{ $detinut->employed_dds_in_hospitals ?? '-' }}</td>
-                        <td class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">{{ $detinut->work_outside ?? '-' }}</td>
-                        <td class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">{{ $detinut->employed_ip_work_outside ?? '-' }}</td>
-                        <td class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-center">
-                            @can('edit detinuti')
-                                <button wire:click="editDetinut({{ $detinut->id }})" 
-                                        class="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded" style="margin-right: 3px;">Editează</button>
-                            @endcan
-                            @can('delete detinuti')
-                                <button wire:click="deleteDetinut({{ $detinut->id }})" 
-                                        class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded">Șterge</button>
-                            @endcan
+                        <td class="py-1 px-2 text-gray-900 dark:text-white text-center">{{ $detinut->institution->name ?? '-' }}</td>
+                        <td class="py-1 px-2 text-gray-900 dark:text-white text-center">{{ $detinut->total ?? '-' }}</td>
+                        <td class="py-1 px-2 text-gray-900 dark:text-white text-center">{{ $detinut->real_inmates ?? '-' }}</td>
+                        <td class="py-1 px-2 text-gray-900 dark:text-white text-center">{{ $detinut->in_search ?? '-' }}</td>
+                        <td class="py-1 px-2 text-gray-900 dark:text-white text-center">{{ $detinut->pretrial_detention ?? '-' }}</td>
+                        <td class="py-1 px-2 text-gray-900 dark:text-white text-center">{{ $detinut->initial_conditions ?? '-' }}</td>
+                        <td class="py-1 px-2 text-gray-900 dark:text-white text-center">{{ $detinut->life ?? '-' }}</td>
+                        <td class="py-1 px-2 text-gray-900 dark:text-white text-center">{{ $detinut->female ?? '-' }}</td>
+                        <td class="py-1 px-2 text-gray-900 dark:text-white text-center">{{ $detinut->minors ?? '-' }}</td>
+                        <td class="py-1 px-2 text-gray-900 dark:text-white text-center">{{ $detinut->open_sector ?? '-' }}</td>
+                        <td class="py-1 px-2 text-gray-900 dark:text-white text-center">{{ $detinut->no_escort ?? '-' }}</td>
+                        <td class="py-1 px-2 text-gray-900 dark:text-white text-center">{{ $detinut->monitoring_bracelets ?? '-' }}</td>
+                        <td class="py-1 px-2 text-gray-900 dark:text-white text-center">{{ $detinut->hunger_strike ?? '-' }}</td>
+                        <td class="py-1 px-2 text-gray-900 dark:text-white text-center">{{ $detinut->disciplinary_insulator ?? '-' }}</td>
+                        <td class="py-1 px-2 text-gray-900 dark:text-white text-center">{{ $detinut->admitted_to_hospitals ?? '-' }}</td>
+                        <td class="py-1 px-2 text-gray-900 dark:text-white text-center">{{ $detinut->employed_ip_in_hospitals ?? '-' }}</td>
+                        <td class="py-1 px-2 text-gray-900 dark:text-white text-center">{{ $detinut->employed_dds_in_hospitals ?? '-' }}</td>
+                        <td class="py-1 px-2 text-gray-900 dark:text-white text-center">{{ $detinut->work_outside ?? '-' }}</td>
+                        <td class="py-1 px-2 text-gray-900 dark:text-white text-center">{{ $detinut->employed_ip_work_outside ?? '-' }}</td>
+                        <td class="py-1 px-2 text-center">
+                            <div class="flex justify-center space-x-2">
+                                @can('edit detinuti')
+                                    <button wire:click="editDetinut({{ $detinut->id }})" 
+                                            class="bg-yellow-500 hover:bg-yellow-600 text-white p-2 rounded">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                        </svg>
+                                    </button>
+                                @endcan
+                                @can('delete detinuti')
+                                    <button wire:click="deleteDetinut({{ $detinut->id }})" 
+                                            class="bg-red-500 hover:bg-red-600 text-white p-2 rounded">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4M9 7h6m-4 4v6m4-6v6"></path>
+                                        </svg>
+                                    </button>
+                                @endcan
+                            </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="21" class="py-2 px-4 text-center text-gray-900 dark:text-white">Nicio înregistrare găsită.</td>
+                        <td colspan="20" class="py-2 px-4 text-center text-gray-900 dark:text-white">Nicio înregistrare găsită.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -97,7 +105,7 @@
 
     @if ($showModal)
         <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" wire:ignore.self>
-            <div class="bg-gray-100 dark:bg-zinc-900 p-6  w-1/2 text-gray-900 dark:text-white border border-gray-300 dark:border-zinc-700">
+            <div class="bg-gray-100 dark:bg-zinc-900 p-6 w-1/2 text-gray-900 dark:text-white border border-gray-300 dark:border-zinc-700">
                 <h2 class="text-xl mb-4">{{ $editingDetinutId ? 'Editează înregistrare' : 'Crează înregistrare' }}</h2>
                 <form wire:submit.prevent="{{ $editingDetinutId ? 'updateDetinut' : 'createDetinut' }}">
                     <div class="mb-4">
@@ -237,4 +245,45 @@
             </div>
         </div>
     @endif
+
+    <style>
+        @media screen {
+            table {
+                border-collapse: collapse;
+            }
+            th, td {
+                border: 1px solid #d1d5db; /* gray-300 */
+                padding: 8px;
+            }
+            .dark th, .dark td {
+                border: 1px solid #3f3f46; /* zinc-700 */
+            }
+            .text-center {
+                text-align: center !important;
+            }
+        }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            table, table * {
+                visibility: visible;
+            }
+            table {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 10pt;
+            }
+            th, td {
+                border: 1px solid #000; 
+                padding: 5px;
+            }
+            .text-center {
+                text-align: center !important;
+            }
+        }
+    </style>
 </div>

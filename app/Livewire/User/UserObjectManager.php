@@ -3,6 +3,7 @@
 namespace App\Livewire\User;
 
 use Livewire\Component;
+use Livewire\WithPagination;
 use App\Models\ObjectPrison;
 use App\Models\Institution;
 use App\Models\ObjectList;
@@ -12,16 +13,16 @@ use Carbon\Carbon;
 
 class UserObjectManager extends Component
 {
-    public $userObjects;
-    public $allObjects;
-    public $institutions;
+    use WithPagination;
+
     public $objectLists;
     public $selectedDate;
+    public $currentDate;
     public $activeTab = 'user-objects';
     public $showModal = false;
     public $showObjectListModal = false;
+    public $editingObjectId = null;
     public $data;
-    public $id_institution;
     public $eveniment_type = 'Depistare';
     public $obj_text;
     public $selectedObjects = [];
@@ -29,25 +30,19 @@ class UserObjectManager extends Component
 
     protected $rules = [
         'data' => 'required|date|before_or_equal:today',
-        'id_institution' => 'required|exists:institutions,id',
         'eveniment_type' => 'nullable|in:Depistare,Contracarare',
         'obj_text' => 'nullable|string',
-        'selectedObjects.*.object_list_id' => 'nullable|exists:object_list,id',
+        'selectedObjects.*.object_list_id' => 'required_with:selectedObjects.*.quantity|exists:object_list,id',
         'selectedObjects.*.quantity' => 'nullable|integer|min:0',
     ];
 
     public function mount()
     {
         try {
-            $this->institutions = Institution::all();
             $this->objectLists = ObjectList::all();
-            $this->userObjects = collect();
-            $this->allObjects = collect();
             $this->selectedDate = Carbon::today()->format('Y-m-d');
-            $this->data = Carbon::today()->format('Y-m-d');
-            $this->id_institution = Auth::user()->institution ? Auth::user()->institution->id : null;
-            $this->loadUserObjects();
-            $this->loadAllObjects();
+            $this->currentDate = Carbon::today()->format('Y-m-d');
+            $this->data = $this->currentDate;
         } catch (\Exception $e) {
             Log::error('Eroare la inițializarea componentei: ' . $e->getMessage());
             $this->dispatch('showToast', ['type' => 'danger', 'message' => 'Eroare la inițializarea componentei: ' . $e->getMessage()]);
@@ -57,91 +52,34 @@ class UserObjectManager extends Component
     public function updatedSelectedDate($value)
     {
         $this->selectedDate = $value;
-        $this->loadUserObjects();
-        $this->loadAllObjects();
+        $this->resetPage();
+    }
+
+    public function updatedEvenimentType($value)
+    {
+        $this->eveniment_type = $value;
     }
 
     public function setTab($tab)
     {
         $this->activeTab = $tab;
-    }
-
-    public function loadUserObjects()
-    {
-        try {
-            $userInstitutionId = Auth::user()->institution ? Auth::user()->institution->id : null;
-            if (!$userInstitutionId) {
-                throw new \Exception('Utilizatorul nu are o instituție asociată.');
-            }
-
-            $query = ObjectPrison::with(['institution', 'objectListItems'])
-                ->where('id_institution', $userInstitutionId);
-            if ($this->selectedDate) {
-                $query->whereDate('data', $this->selectedDate);
-            }
-            $this->userObjects = $query->get();
-        } catch (\Exception $e) {
-            $this->userObjects = collect();
-            Log::error('Eroare la încărcarea obiectelor utilizatorului: ' . $e->getMessage());
-            $this->dispatch('showToast', ['type' => 'danger', 'message' => 'Eroare la încărcarea obiectelor: ' . $e->getMessage()]);
-        }
-    }
-
-    public function loadAllObjects()
-    {
-        try {
-            $query = ObjectPrison::with(['institution', 'objectListItems']);
-            if ($this->selectedDate) {
-                $query->whereDate('data', $this->selectedDate);
-            }
-            $objects = $query->get();
-
-            $this->allObjects = $objects->groupBy(function ($object) {
-                return $object->data . '|' . $object->id_institution;
-            })->map(function ($group) {
-                $first = $group->first();
-                $totalQuantity = $group->pluck('objectListItems')->flatten()->sum('pivot.quantity');
-                return [
-                    'data' => $first->data,
-                    'institution_name' => $first->institution ? $first->institution->name : 'N/A',
-                    'eveniment' => $group->pluck('eveniment')->unique()->filter()->implode(', ') ?: 'Depistare',
-                    'objects' => $group->pluck('objectListItems')->flatten()->groupBy('name')->map(function ($items, $name) {
-                        return [
-                            'name' => $name,
-                            'quantity' => $items->sum('pivot.quantity'),
-                        ];
-                    })->values(),
-                    'total_quantity' => $totalQuantity,
-                    'obj_text' => $group->pluck('obj_text')->filter()->implode(', '),
-                    'count' => $group->count(),
-                ];
-            })->values();
-
-            $this->dispatch('allObjectsUpdated', $this->allObjects->toArray());
-        } catch (\Exception $e) {
-            $this->allObjects = collect();
-            Log::error('Eroare la încărcarea tuturor obiectelor: ' . $e->getMessage());
-            $this->dispatch('showToast', ['type' => 'danger', 'message' => 'Eroare la încărcarea tuturor obiectelor: ' . $e->getMessage()]);
-        }
+        $this->resetPage();
     }
 
     public function createObject()
     {
+        $this->data = Carbon::today()->format('Y-m-d');
         $this->validate();
 
         try {
             $attributes = [
                 'data' => $this->data,
-                'id_institution' => $this->id_institution,
+                'id_institution' => Auth::user()->institution->id,
                 'obj_text' => $this->obj_text,
                 'eveniment' => $this->eveniment_type,
                 'created_by' => Auth::id(),
                 'updated_by' => Auth::id(),
             ];
-
-            if ($this->eveniment_type && $this->eveniment_type !== 'Depistare') {
-                $attributes['eveniment'] = $this->eveniment_type;
-            }
 
             $object = ObjectPrison::create($attributes);
 
@@ -155,13 +93,8 @@ class UserObjectManager extends Component
                 }
             }
 
-            $createdAt = Carbon::parse($object->created_at)->format('d-m-Y H:i');
             $this->resetForm();
-            $this->loadUserObjects();
-            $this->dispatch('showToast', [
-                'type' => 'success',
-                'message' => "Obiect creat cu succes la data: {$createdAt}"
-            ]);
+            $this->dispatch('showToast', ['type' => 'success', 'message' => 'Obiect creat cu succes!']);
             $this->dispatch('closeModal');
         } catch (\Exception $e) {
             Log::error('Eroare la crearea obiectului: ' . $e->getMessage());
@@ -169,22 +102,91 @@ class UserObjectManager extends Component
         }
     }
 
-    public function resetForm()
+    public function editObject($id)
     {
-        $this->showModal = false;
-        $this->showObjectListModal = false;
-        $this->data = Carbon::today()->format('Y-m-d');
-        $this->id_institution = Auth::user()->institution ? Auth::user()->institution->id : null;
-        $this->eveniment_type = 'Depistare';
-        $this->obj_text = null;
-        $this->selectedObjects = [];
-        $this->tempQuantities = [];
-        $this->resetErrorBag();
+        try {
+            $object = ObjectPrison::with('objectListItems')->find($id);
+            if (!$object || $object->id_institution !== Auth::user()->institution->id) {
+                throw new \Exception("Obiectul nu există sau nu aparține instituției dvs.");
+            }
+
+            $this->editingObjectId = $id;
+            $this->data = Carbon::today()->format('Y-m-d');
+            $this->currentDate = Carbon::today()->format('Y-m-d');
+            $this->eveniment_type = $object->eveniment ?? 'Depistare';
+            $this->obj_text = $object->obj_text;
+
+            $this->selectedObjects = $object->objectListItems->isNotEmpty()
+                ? $object->objectListItems->map(function ($item) {
+                    return [
+                        'object_list_id' => $item->id,
+                        'name' => $item->name,
+                        'quantity' => $item->pivot->quantity ?? 0,
+                    ];
+                })->toArray()
+                : [];
+
+            $this->tempQuantities = collect($this->selectedObjects)->pluck('quantity', 'object_list_id')->all();
+            $this->showModal = true;
+        } catch (\Exception $e) {
+            Log::error('Eroare la editarea obiectului: ' . $e->getMessage());
+            $this->dispatch('showToast', ['type' => 'danger', 'message' => 'Eroare la editarea obiectului: ' . $e->getMessage()]);
+        }
     }
 
-    public function openModal()
+    public function updateObject()
     {
-        $this->showModal = true;
+        $this->data = Carbon::today()->format('Y-m-d');
+        $this->validate();
+
+        try {
+            $object = ObjectPrison::findOrFail($this->editingObjectId);
+            if ($object->id_institution !== Auth::user()->institution->id) {
+                throw new \Exception("Nu aveți permisiunea de a edita acest obiect.");
+            }
+
+            $attributes = [
+                'data' => $this->data,
+                'id_institution' => Auth::user()->institution->id,
+                'eveniment' => $this->eveniment_type,
+                'obj_text' => $this->obj_text,
+                'updated_by' => Auth::id(),
+            ];
+
+            $object->update($attributes);
+
+            $syncData = collect($this->selectedObjects)
+                ->filter(function ($item) {
+                    return $item['quantity'] > 0 && isset($item['object_list_id']);
+                })
+                ->mapWithKeys(function ($item) {
+                    return [$item['object_list_id'] => ['quantity' => $item['quantity']]];
+                })->all();
+            $object->objectListItems()->sync($syncData);
+
+            $this->resetForm();
+            $this->dispatch('showToast', ['type' => 'success', 'message' => 'Obiect actualizat cu succes!']);
+            $this->dispatch('closeModal');
+        } catch (\Exception $e) {
+            Log::error('Eroare la actualizarea obiectului: ' . $e->getMessage());
+            $this->dispatch('showToast', ['type' => 'danger', 'message' => 'Eroare la actualizarea obiectului: ' . $e->getMessage()]);
+        }
+    }
+
+    public function deleteObject($id)
+    {
+        try {
+            $object = ObjectPrison::findOrFail($id);
+            if ($object->id_institution !== Auth::user()->institution->id) {
+                throw new \Exception("Nu aveți permisiunea de a șterge acest obiect.");
+            }
+
+            $object->delete();
+            $this->dispatch('showToast', ['type' => 'success', 'message' => 'Obiect șters cu succes!']);
+        } catch (\Exception $e) {
+            Log::error('Eroare la ștergerea obiectului: ' . $e->getMessage());
+            $this->dispatch('showToast', ['type' => 'danger', 'message' => 'Eroare la ștergerea obiectului: ' . $e->getMessage()]);
+        }
     }
 
     public function addAllSelectedObjects()
@@ -231,6 +233,20 @@ class UserObjectManager extends Component
         }
     }
 
+    public function resetForm()
+    {
+        $this->showModal = false;
+        $this->showObjectListModal = false;
+        $this->editingObjectId = null;
+        $this->data = Carbon::today()->format('Y-m-d');
+        $this->currentDate = Carbon::today()->format('Y-m-d');
+        $this->eveniment_type = 'Depistare';
+        $this->obj_text = null;
+        $this->selectedObjects = [];
+        $this->tempQuantities = [];
+        $this->resetErrorBag();
+    }
+
     public function openObjectListModal()
     {
         try {
@@ -244,9 +260,46 @@ class UserObjectManager extends Component
 
     public function render()
     {
+        $userInstitutionId = Auth::user()->institution ? Auth::user()->institution->id : null;
+
+        $userObjects = $userInstitutionId
+            ? ObjectPrison::with(['institution', 'objectListItems', 'createdBy', 'updatedBy'])
+                ->where('id_institution', $userInstitutionId)
+                ->whereDate('data', $this->selectedDate)
+                ->orderBy('created_at', 'desc')
+                ->paginate(10)
+            : new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10);
+
+        $allObjectsQuery = ObjectPrison::with(['institution', 'objectListItems'])
+            ->whereDate('data', $this->selectedDate)
+            ->orderBy('created_at', 'desc');
+        $allObjectsPaginated = $allObjectsQuery->paginate(10);
+
+        $allObjects = $allObjectsPaginated->groupBy(function ($object) {
+            return $object->data . '|' . $object->id_institution;
+        })->map(function ($group) {
+            $first = $group->first();
+            $totalQuantity = $group->pluck('objectListItems')->flatten()->sum('pivot.quantity');
+            return [
+                'data' => $first->data,
+                'institution_name' => $first->institution ? $first->institution->name : 'N/A',
+                'eveniment' => $group->pluck('eveniment')->unique()->filter()->implode(', ') ?: 'Depistare',
+                'objects' => $group->pluck('objectListItems')->flatten()->groupBy('name')->map(function ($items, $name) {
+                    return [
+                        'name' => $name,
+                        'quantity' => $items->sum('pivot.quantity'),
+                    ];
+                })->values(),
+                'total_quantity' => $totalQuantity,
+                'obj_text' => $group->pluck('obj_text')->filter()->implode(', '),
+                'count' => $group->count(),
+            ];
+        })->values();
+
         return view('livewire.user.user-object-manager', [
-            'userObjects' => $this->userObjects,
-            'allObjects' => $this->allObjects,
+            'userObjects' => $userObjects,
+            'allObjects' => $allObjects,
+            'allObjectsPaginated' => $allObjectsPaginated, // Pentru link-urile de paginare
         ]);
     }
 }

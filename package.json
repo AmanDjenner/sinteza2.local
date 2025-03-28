@@ -2,6 +2,7 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "clean": "rm -rf public\\build && rm -rf node_modules\\.vite",
         "build": "vite build",
         "dev": "vite"
     },

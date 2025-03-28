@@ -7,7 +7,11 @@
 
     <!-- Livewire Styles -->
     @livewireStyles
+<!-- În <head> -->
+<!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" /> -->
 
+<!-- Înainte de </body> -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
     <!-- Other CSS (e.g., Tailwind, Flux, etc.) -->
     <!-- Add any additional stylesheets here if needed -->
 </head>

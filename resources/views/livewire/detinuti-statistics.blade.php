@@ -3,6 +3,31 @@
         .square-tabs {
             border-radius: 0 !important;
         }
+        thead th {
+            vertical-align: middle;
+        }
+        .content-column {
+            word-break: break-all;
+        }
+        .action-btn {
+            transition: background-color 0.3s ease;
+        }
+        .action-btn.disabled {
+            background-color: #9ca3af !important; 
+            cursor: not-allowed;
+            pointer-events: none; 
+            opacity: 0.7;
+        }
+        .action-btn .timer {
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+        .bg-yellow-500.border {
+            border: 1px solid #eab308;
+        }
+        .bg-red-500.border {
+            border: 1px solid #ef4444;
+        }
     </style>
 @endpush
 
@@ -34,7 +59,6 @@
         </ul>
     </div>
 
-   
     <div class="mt-4">
         @if ($activeTab === 'raw-data')
             <div class="mb-4 flex justify-between items-center">
@@ -60,7 +84,6 @@
                 <table class="w-full bg-gray-100 dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm">
                     <thead>
                         <tr>
-                            <!-- <th class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Instituție</th> -->
                             <th style="max-width:70px" class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Total</th>
                             <th style="max-width:70px" class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Deținuți reali</th>
                             <th style="max-width:70px" class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">În căutare</th>
@@ -85,7 +108,6 @@
                     <tbody>
                         @forelse ($detinuti as $detinut)
                             <tr>
-                                <!-- <td class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">{{ $detinut->institution->name ?? '-' }}</td> -->
                                 <td style="width:100px" class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">{{ $detinut->total ?? '-' }}</td>
                                 <td class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">{{ $detinut->real_inmates ?? '-' }}</td>
                                 <td class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">{{ $detinut->in_search ?? '-' }}</td>
@@ -106,12 +128,27 @@
                                 <td class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">{{ $detinut->employed_ip_work_outside ?? '-' }}</td>
                                 <td class="py-1 px-2 border-b border-gray-300 dark:border-zinc-700 text-center">
                                     @can('edit detinuti')
-                                        <button wire:click="editDetinut({{ $detinut->id }})" 
-                                                class="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded" style="margin-right: 3px;">Editează</button>
+                                    <button wire:click="editDetinut({{ $detinut->id }})" 
+                                                class="bg-yellow-500 hover:bg-yellow-600 text-white p-2 rounded">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                            </svg>
+                                        </button>
                                     @endcan
                                     @can('delete detinuti')
+                                        <!-- <button wire:click="deleteDetinut({{ $detinut->id }})" 
+                                                class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded  border-red-600 transition-colors duration-300">
+                                            <svg class="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4a1 1 0 011 1v1H9V4a1 1 0 011-1z"></path>
+                                            </svg>
+                                        </button> -->
+                                        
                                         <button wire:click="deleteDetinut({{ $detinut->id }})" 
-                                                class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded">Șterge</button>
+                                                class="bg-red-500 hover:bg-red-600 text-white p-2 rounded">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4M9 7h6m-4 4v6m4-6v6"></path>
+                                            </svg>
+                                        </button>
                                     @endcan
                                 </td>
                             </tr>
@@ -123,7 +160,6 @@
                     </tbody>
                 </table>
             </div>
-
         @elseif ($activeTab === 'statistics')
             <div id="statistics-table" class="overflow-x-auto">
                 <div class="mb-4 flex justify-between items-center">
@@ -188,148 +224,147 @@
                 @endif
             </div>
         @endif
+
+        <!-- Modal for Adding/Editing Detinuti -->
+        @if($showAddModal)
+            <div class="fixed top-0 bottom-0 left-0 right-0 lg:left-[16rem] bg-zinc-800 bg-opacity-75 flex items-center justify-center p-4">
+                <div class="bg-gray-100 dark:bg-zinc-900 p-6 w-full max-w-[calc(100vw-16rem-2rem)] lg:max-w-4xl max-h-[90vh] overflow-y-auto border border-gray-300 dark:border-zinc-700">
+                    <h2 class="text-lg font-bold mb-3">{{ $editingDetinutId ? 'Editează înregistrare' : 'Crează înregistrare' }}</h2>
+                    <form wire:submit.prevent="storeDetinuti">
+                        <!-- Date Field (Full Width) -->
+                        <div class="mb-3">
+                            <label class="block mb-1 text-sm">Data (astăzi)</label>
+                            <input type="text" value="{{ Carbon\Carbon::today()->format('Y-m-d') }}" readonly
+                                   class="w-full border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded text-sm">
+                            <input type="hidden" wire:model="data" value="{{ now()->format('Y-m-d') }}">
+                        </div>
+
+                        <!-- Three-Column Layout with Automatic Distribution -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="mb-3">
+                                <label class="block mb-1 text-sm">Total</label>
+                                <input type="number" wire:model="total" min="0" 
+                                       class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
+                                @error('total') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                            <div class="mb-3">
+                                <label class="block mb-1 text-sm">Deținuți reali</label>
+                                <input type="number" wire:model="real_inmates" min="0" 
+                                       class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
+                                @error('real_inmates') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                            <div class="mb-3">
+                                <label class="block mb-1 text-sm">În căutare</label>
+                                <input type="number" wire:model="in_search" min="0" 
+                                       class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
+                                @error('in_search') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                            <div class="mb-3">
+                                <label class="block mb-1 text-sm">Detenție preventivă</label>
+                                <input type="number" wire:model="pretrial_detention" min="0" 
+                                       class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
+                                @error('pretrial_detention') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                            <div class="mb-3">
+                                <label class="block mb-1 text-sm">Condiții inițiale</label>
+                                <input type="number" wire:model="initial_conditions" min="0" 
+                                       class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
+                                @error('initial_conditions') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                            <div class="mb-3">
+                                <label class="block mb-1 text-sm">Pe viață</label>
+                                <input type="number" wire:model="life" min="0" 
+                                       class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
+                                @error('life') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                            <div class="mb-3">
+                                <label class="block mb-1 text-sm">Femei</label>
+                                <input type="number" wire:model="female" min="0" 
+                                       class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
+                                @error('female') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                            <div class="mb-3">
+                                <label class="block mb-1 text-sm">Minori</label>
+                                <input type="number" wire:model="minors" min="0" 
+                                       class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
+                                @error('minors') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                            <div class="mb-3">
+                                <label class="block mb-1 text-sm">Sector deschis</label>
+                                <input type="number" wire:model="open_sector" min="0" 
+                                       class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
+                                @error('open_sector') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                            <div class="mb-3">
+                                <label class="block mb-1 text-sm">Fără escortă</label>
+                                <input type="number" wire:model="no_escort" min="0" 
+                                       class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
+                                @error('no_escort') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                            <div class="mb-3">
+                                <label class="block mb-1 text-sm">Brățări monitorizare</label>
+                                <input type="number" wire:model="monitoring_bracelets" min="0" 
+                                       class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
+                                @error('monitoring_bracelets') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                            <div class="mb-3">
+                                <label class="block mb-1 text-sm">Grevă foame</label>
+                                <input type="number" wire:model="hunger_strike" min="0" 
+                                       class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
+                                @error('hunger_strike') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                            <div class="mb-3">
+                                <label class="block mb-1 text-sm">Izolator disciplinar</label>
+                                <input type="number" wire:model="disciplinary_insulator" min="0" 
+                                       class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
+                                @error('disciplinary_insulator') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                            <div class="mb-3">
+                                <label class="block mb-1 text-sm">Internați spitale</label>
+                                <input type="number" wire:model="admitted_to_hospitals" min="0" 
+                                       class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
+                                @error('admitted_to_hospitals') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                            <div class="mb-3">
+                                <label class="block mb-1 text-sm">Angajați IP spitale</label>
+                                <input type="number" wire:model="employed_ip_in_hospitals" min="0" 
+                                       class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
+                                @error('employed_ip_in_hospitals') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                            <div class="mb-3">
+                                <label class="block mb-1 text-sm">Angajați DDS spitale</label>
+                                <input type="number" wire:model="employed_dds_in_hospitals" min="0" 
+                                       class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
+                                @error('employed_dds_in_hospitals') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                            <div class="mb-3">
+                                <label class="block mb-1 text-sm">Muncă exterior</label>
+                                <input type="number" wire:model="work_outside" min="0" 
+                                       class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
+                                @error('work_outside') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                            <div class="mb-3">
+                                <label class="block mb-1 text-sm">Angajați IP exterior</label>
+                                <input type="number" wire:model="employed_ip_work_outside" min="0" 
+                                       class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
+                                @error('employed_ip_work_outside') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="flex justify-end space-x-2 mt-4">
+                            <button type="button" wire:click="closeAddModal" 
+                                    class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">Anulează</button>
+                            <button type="submit" 
+                                    class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm">
+                                {{ $editingDetinutId ? 'Actualizează' : 'Crează' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        @endif
     </div>
-
-<!-- Modal for Adding/Editing Detinuti -->
-@if($showAddModal)
-    <div class="fixed top-0 bottom-0 left-0 right-0 lg:left-[16rem] bg-zinc-800 bg-opacity-75 flex items-center justify-center p-4">
-        <div class="bg-gray-100 dark:bg-zinc-900 p-6 w-full max-w-[calc(100vw-16rem-2rem)] lg:max-w-4xl max-h-[90vh] overflow-y-auto border border-gray-300 dark:border-zinc-700">
-            <h2 class="text-lg font-bold mb-3">{{ $editingDetinutId ? 'Editează înregistrare' : 'Crează înregistrare' }}</h2>
-            <form wire:submit.prevent="storeDetinuti">
-                <!-- Date Field (Full Width) -->
-                <div class="mb-3">
-                    <label class="block mb-1 text-sm">Data (astăzi)</label>
-                    <input type="text" value="{{ Carbon\Carbon::today()->format('Y-m-d') }}" readonly
-                           class="w-full border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded text-sm">
-                    <input type="hidden" wire:model="data" value="{{ now()->format('Y-m-d') }}">
-                </div>
-
-                <!-- Three-Column Layout with Automatic Distribution -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="mb-3">
-                        <label class="block mb-1 text-sm">Total</label>
-                        <input type="number" wire:model="total" min="0" 
-                               class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
-                        @error('total') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label class="block mb-1 text-sm">Deținuți reali</label>
-                        <input type="number" wire:model="real_inmates" min="0" 
-                               class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
-                        @error('real_inmates') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label class="block mb-1 text-sm">În căutare</label>
-                        <input type="number" wire:model="in_search" min="0" 
-                               class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
-                        @error('in_search') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label class="block mb-1 text-sm">Detenție preventivă</label>
-                        <input type="number" wire:model="pretrial_detention" min="0" 
-                               class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
-                        @error('pretrial_detention') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label class="block mb-1 text-sm">Condiții inițiale</label>
-                        <input type="number" wire:model="initial_conditions" min="0" 
-                               class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
-                        @error('initial_conditions') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label class="block mb-1 text-sm">Pe viață</label>
-                        <input type="number" wire:model="life" min="0" 
-                               class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
-                        @error('life') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label class="block mb-1 text-sm">Femei</label>
-                        <input type="number" wire:model="female" min="0" 
-                               class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
-                        @error('female') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label class="block mb-1 text-sm">Minori</label>
-                        <input type="number" wire:model="minors" min="0" 
-                               class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
-                        @error('minors') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label class="block mb-1 text-sm">Sector deschis</label>
-                        <input type="number" wire:model="open_sector" min="0" 
-                               class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
-                        @error('open_sector') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label class="block mb-1 text-sm">Fără escortă</label>
-                        <input type="number" wire:model="no_escort" min="0" 
-                               class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
-                        @error('no_escort') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label class="block mb-1 text-sm">Brățări monitorizare</label>
-                        <input type="number" wire:model="monitoring_bracelets" min="0" 
-                               class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
-                        @error('monitoring_bracelets') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label class="block mb-1 text-sm">Grevă foame</label>
-                        <input type="number" wire:model="hunger_strike" min="0" 
-                               class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
-                        @error('hunger_strike') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label class="block mb-1 text-sm">Izolator disciplinar</label>
-                        <input type="number" wire:model="disciplinary_insulator" min="0" 
-                               class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
-                        @error('disciplinary_insulator') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label class="block mb-1 text-sm">Internați spitale</label>
-                        <input type="number" wire:model="admitted_to_hospitals" min="0" 
-                               class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
-                        @error('admitted_to_hospitals') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label class="block mb-1 text-sm">Angajați IP spitale</label>
-                        <input type="number" wire:model="employed_ip_in_hospitals" min="0" 
-                               class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
-                        @error('employed_ip_in_hospitals') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label class="block mb-1 text-sm">Angajați DDS spitale</label>
-                        <input type="number" wire:model="employed_dds_in_hospitals" min="0" 
-                               class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
-                        @error('employed_dds_in_hospitals') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label class="block mb-1 text-sm">Muncă exterior</label>
-                        <input type="number" wire:model="work_outside" min="0" 
-                               class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
-                        @error('work_outside') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label class="block mb-1 text-sm">Angajați IP exterior</label>
-                        <input type="number" wire:model="employed_ip_work_outside" min="0" 
-                               class="w-32 border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-zinc-500 text-sm">
-                        @error('employed_ip_work_outside') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-                </div>
-
-                <!-- Buttons -->
-                <div class="flex justify-end space-x-2 mt-4">
-                    <button type="button" wire:click="closeAddModal" 
-                            class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">Anulează</button>
-                    <button type="submit" 
-                            class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm">
-                        {{ $editingDetinutId ? 'Actualizează' : 'Crează' }}
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-@endif
-
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.3/jspdf.plugin.autotable.min.js"></script>

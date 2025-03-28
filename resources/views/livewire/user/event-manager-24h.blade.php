@@ -14,14 +14,21 @@
             transition: background-color 0.3s ease;
         }
         .action-btn.disabled {
-            background-color: #9ca3af !important; 
+            background-color: #d1d5db !important; /* bg-gray-300 */
             cursor: not-allowed;
-            pointer-events: none; 
-            opacity: 0.7;
+            pointer-events: none;
+            opacity: 0.5;
         }
-        .action-btn .timer {
-            font-size: 0.8em;
-            margin-left: 5px;
+        .timer-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 4px; /* Spațiu între timer și butoane */
+        }
+        .timer {
+            font-size: 0.9em;
+            color: #4b5563; /* text-gray-600 */
+            margin-left: 4px;
         }
     </style>
 @endpush
@@ -72,8 +79,7 @@
                     @endcan
                 </div>
                 
-                <div class=" max-h-[700px]" x-data="{ loading: false }" 
-                     
+                <div class="max-h-[700px]" x-data="{ loading: false }">
                     @forelse ($events->sortKeysDesc() as $date => $dayEvents)
                         <h2 class="text-lg font-semibold mt-4 mb-2 text-gray-900 dark:text-white">
                             Evenimente din data {{ \Carbon\Carbon::parse($date)->format('d.m.Y') }}
@@ -81,13 +87,13 @@
                         <div class="mb-4">
                             <table class="w-full bg-gray-100 dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 text-sm">
                                 <thead>
-                                <tr>
-    <th class="w-[100px]  py-2 px-4 border-b border-r border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Data evenimentului</th>
-    <th class="w-[100px]  py-2 px-4 border-b border-r border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Categoria</th>
-    <th class="w-[100px] py-2 px-4 border-b border-r border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Persoane implicate</th>
-    <th class="w-[1000px] py-2 px-4 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Conținut</th>
-    <th class="max-w-[400px]  py-2 px-4 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Acțiuni</th>
-</tr>
+                                    <tr>
+                                        <th class="w-[100px] py-2 px-4 border-b border-r border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Data evenimentului</th>
+                                        <th class="w-[100px] py-2 px-4 border-b border-r border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Categoria</th>
+                                        <th class="w-[100px] py-2 px-4 border-b border-r border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Persoane implicate</th>
+                                        <th class="w-[1000px] py-2 px-4 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Conținut</th>
+                                        <th class="max-w-[400px] py-2 px-4 border-b border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-center">Acțiuni</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
                                     @php
@@ -124,23 +130,34 @@
                                                     {!! $event->events_text ?? '-' !!}
                                                 </td>
                                                 <td class="py-2 px-4 border-b border-gray-300 dark:border-zinc-700 text-center">
-                                                    @can('edit events 24h')
-                                                        <button wire:click="editEvent({{ $event->id }})" 
-                                                                class="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 my-8 rounded action-btn" 
-                                                                data-created-at="{{ $event->created_at }}" 
-                                                                style="margin-right: 3px;" 
-                                                                @if(!$canEditOrDelete) disabled @endif>
-                                                            Editează <span class="timer"></span>
-                                                        </button>
-                                                    @endcan
-                                                    @can('delete events 24h')
-                                                        <button wire:click="deleteEvent({{ $event->id }})" 
-                                                                class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 my-8 rounded action-btn" 
-                                                                data-created-at="{{ $event->created_at }}" 
-                                                                @if(!$canEditOrDelete) disabled @endif>
-                                                            Șterge <span class="timer"></span>
-                                                        </button>
-                                                    @endcan
+                                                    <div class="timer-container justify-center" data-created-at="{{ $event->created_at }}" style="display: none;">
+                                                        <svg class="w-4 h-4 inline-block text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                        </svg>
+                                                        <span class="timer px-2"></span>
+                                                    </div>
+                                                    <div>
+                                                        @can('edit events 24h')
+                                                            <button wire:click="editEvent({{ $event->id }})" 
+                                                                    class="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-2 rounded action-btn  border-yellow-600 mr-1 transition-colors duration-300" 
+                                                                    data-created-at="{{ $event->created_at }}"
+                                                                    @if(!$canEditOrDelete) disabled cursor-not-allowed @endif>
+                                                                <svg class="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                                </svg>
+                                                            </button>
+                                                        @endcan
+                                                        @can('delete events 24h')
+                                                            <button wire:click="deleteEvent({{ $event->id }})" 
+                                                                    class="bg-red-500 hover:bg-red-600 text-white px-2 py-2 rounded action-btn border-red-600 transition-colors duration-300" 
+                                                                    data-created-at="{{ $event->created_at }}"
+                                                                    @if(!$canEditOrDelete) disabled @endif>
+                                                                <svg class="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4a1 1 0 011 1v1H9V4a1 1 0 011-1z"></path>
+                                                                </svg>
+                                                            </button>
+                                                        @endcan
+                                                    </div>
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -284,20 +301,28 @@
 @endcan
 
 @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             let allEventsData = @json($allEvents);
             console.log('Initial allEvents:', allEventsData);
+            let timers = {}; // Obiect pentru a stoca intervalele active
 
             Livewire.on('allEventsUpdated', (data) => {
                 allEventsData = data;
                 console.log('Updated allEvents:', allEventsData);
+                updateActionButtons();
             });
 
             Livewire.on('eventsUpdated', () => {
                 console.log('Events updated');
+                updateActionButtons();
+            });
+
+            // Listener pentru schimbarea tab-ului
+            Livewire.on('tabChanged', () => {
+                console.log('Tab changed');
                 updateActionButtons();
             });
 
@@ -308,41 +333,55 @@
             }
 
             function updateActionButtons() {
-                const actionButtons = document.querySelectorAll('.action-btn:not(.disabled)');
-                actionButtons.forEach(button => {
-                    const createdAt = new Date(button.getAttribute('data-created-at'));
+                const timerContainers = document.querySelectorAll('.timer-container');
+                timerContainers.forEach(container => {
+                    const createdAt = new Date(container.getAttribute('data-created-at'));
                     const now = new Date();
-                    const timeDiff = (now - createdAt) / 1000;
-                    const maxTime = 5 * 60;
-                    const timerSpan = button.querySelector('.timer');
+                    const timeDiff = (now - createdAt) / 1000; // Diferența în secunde
+                    const maxTime = 5 * 60; // 5 minute în secunde
+                    const timerSpan = container.querySelector('.timer');
+                    const buttons = container.nextElementSibling.querySelectorAll('.action-btn');
+                    const eventId = container.getAttribute('data-created-at'); // Folosim data-created-at ca ID unic
 
-                    if (button.countdown) {
-                        clearInterval(button.countdown);
+                    // Curățăm intervalul existent, dacă există
+                    if (timers[eventId]) {
+                        clearInterval(timers[eventId]);
+                        delete timers[eventId];
                     }
 
-                    if (timeDiff >= maxTime) {
-                        button.disabled = true;
-                        button.classList.add('disabled');
-                        timerSpan.textContent = '(expirat)';
-                    } else {
+                    // Afișăm timer-ul doar dacă evenimentul este recent (sub 5 minute)
+                    if (timeDiff < maxTime) {
+                        container.style.display = 'flex'; // Afișăm timer-ul
                         let timeLeft = maxTime - timeDiff;
-                        timerSpan.textContent = `(${formatTime(timeLeft)})`;
+                        timerSpan.textContent = formatTime(timeLeft);
 
-                        button.countdown = setInterval(() => {
+                        // Pornim timer-ul interactiv și îl stocăm
+                        timers[eventId] = setInterval(() => {
                             timeLeft--;
                             if (timeLeft <= 0) {
-                                clearInterval(button.countdown);
-                                button.disabled = true;
-                                button.classList.add('disabled');
-                                timerSpan.textContent = '(expirat)';
+                                clearInterval(timers[eventId]);
+                                delete timers[eventId];
+                                buttons.forEach(button => {
+                                    button.disabled = true;
+                                    button.classList.add('disabled');
+                                });
+                                container.style.display = 'none'; // Ascundem timer-ul când expiră
                             } else {
-                                timerSpan.textContent = `(${formatTime(timeLeft)})`;
+                                timerSpan.textContent = formatTime(timeLeft);
                             }
                         }, 1000);
+                    } else {
+                        // Dacă au trecut deja 5 minute, dezactivăm butoanele și ascundem timer-ul
+                        container.style.display = 'none';
+                        buttons.forEach(button => {
+                            button.disabled = true;
+                            button.classList.add('disabled');
+                        });
                     }
                 });
             }
 
+            // Inițializăm timer-ul la încărcarea paginii doar pentru evenimentele existente
             updateActionButtons();
 
             window.printTable = function() {
